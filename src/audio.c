@@ -151,15 +151,21 @@ void go2_audio_submit(go2_audio_t* audio, const short* data, int frames)
     ALint processed = 0;
     ALuint openALBufferID;
     ALint state;
-    int dataByteLength = frames * sizeof(short) * SOUND_CHANNEL_COUNT;
+
 
     while(!processed)
     {
         alGetSourceiv(audio->source, AL_BUFFERS_PROCESSED, &processed);
-        sleep(0);
+        if (!processed)
+        {
+            sleep(0);
+        }
     }
 
+    
     alSourceUnqueueBuffers(audio->source, 1, &openALBufferID);
+
+    int dataByteLength = frames * sizeof(short) * SOUND_CHANNEL_COUNT;
     alBufferData(openALBufferID, AL_FORMAT_STEREO16, data, dataByteLength, audio->frequency);
     alSourceQueueBuffers(audio->source, 1, &openALBufferID);
     alGetSourcei(audio->source, AL_SOURCE_STATE, &state);
