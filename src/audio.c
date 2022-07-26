@@ -16,7 +16,8 @@ You should have received a copy of the GNU Lesser General Public
 License along with this library; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
-
+// #include <threads.h>
+#include <pthread.h>
 #include "audio.h"
 
 #include <AL/al.h>
@@ -31,6 +32,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include <alsa/asoundlib.h>
 #include <alsa/mixer.h>
+
 
 #define SOUND_SAMPLES_SIZE  (2048)
 #define SOUND_CHANNEL_COUNT 2
@@ -48,7 +50,8 @@ typedef struct go2_audio
 
 go2_audio_t* go2_audio_create(int frequency)
 {
-    go2_audio_t* result = malloc(sizeof(*result));
+
+go2_audio_t* result = malloc(sizeof(*result));
     if (!result)
     {
         printf("malloc failed.\n");
@@ -125,48 +128,50 @@ void go2_audio_destroy(go2_audio_t* audio)
     free(audio);
 }
 
+
+
+
+
+
+
 void go2_audio_submit(go2_audio_t* audio, const short* data, int frames)
 {
-    if (!audio || !audio->isAudioInitialized) return;
-
-
-    if (!alcMakeContextCurrent(audio->context))
-    {
-        printf("alcMakeContextCurrent failed.\n");
+      if (!audio || !audio->isAudioInitialized) {
+        printf("audio not initialized.\n");
         return;
     }
 
+
+    /*if (!alcMakeContextCurrent(audio->context))
+    {
+        printf("alcMakeContextCurrent failed.\n");
+        return;
+    }*/
+
     ALint processed = 0;
+    ALuint openALBufferID;
+    ALint state;
+    int dataByteLength = frames * sizeof(short) * SOUND_CHANNEL_COUNT;
+
     while(!processed)
     {
         alGetSourceiv(audio->source, AL_BUFFERS_PROCESSED, &processed);
-
-        if (!processed)
-        {
-            sleep(0);
-            //printf("Audio overflow.\n");
-            //return;
-        }
+        sleep(0);
     }
 
-    ALuint openALBufferID;
     alSourceUnqueueBuffers(audio->source, 1, &openALBufferID);
-
-    ALuint format = AL_FORMAT_STEREO16;
-
-    int dataByteLength = frames * sizeof(short) * SOUND_CHANNEL_COUNT;
-    alBufferData(openALBufferID, format, data, dataByteLength, audio->frequency);
-
+    alBufferData(openALBufferID, AL_FORMAT_STEREO16, data, dataByteLength, audio->frequency);
     alSourceQueueBuffers(audio->source, 1, &openALBufferID);
+    alGetSourcei(audio->source, AL_SOURCE_STATE, &state);
 
-    ALint result;
-    alGetSourcei(audio->source, AL_SOURCE_STATE, &result);
-
-    if (result != AL_PLAYING)
+    if (state != AL_PLAYING && state != AL_PAUSED)
     {
         alSourcePlay(audio->source);
     }
 }
+
+
+
 
 uint32_t go2_audio_volume_get(go2_audio_t* audio)
 {

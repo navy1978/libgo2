@@ -30,6 +30,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/mman.h>
+#include <sys/wait.h>
 #include <fcntl.h>
 #include <errno.h>
 #include <string.h>
@@ -38,6 +39,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <stdbool.h>
 #include <pthread.h>
 #include <semaphore.h>
+  
+  
 
 #include <rga/RgaApi.h>
 
@@ -867,7 +870,7 @@ static void* go2_presenter_renderloop(void* arg)
         if(presenter->terminating) break;
 
 
-        pthread_mutex_lock(&presenter->queueMutex);
+        //pthread_mutex_lock(&presenter->queueMutex);
 
         if (go2_queue_count_get(presenter->usedFrameBuffers) < 1)
         {
@@ -877,21 +880,22 @@ static void* go2_presenter_renderloop(void* arg)
 
         go2_frame_buffer_t* dstFrameBuffer = (go2_frame_buffer_t*)go2_queue_pop(presenter->usedFrameBuffers);
 
-        pthread_mutex_unlock(&presenter->queueMutex);
+        //pthread_mutex_unlock(&presenter->queueMutex);
 
 
         go2_display_present(presenter->display, dstFrameBuffer);
 
         if (prevFrameBuffer)
         {
-            pthread_mutex_lock(&presenter->queueMutex);
+            //pthread_mutex_lock(&presenter->queueMutex);
             go2_queue_push(presenter->freeFrameBuffers, prevFrameBuffer);
-            pthread_mutex_unlock(&presenter->queueMutex);
+            //pthread_mutex_unlock(&presenter->queueMutex);
 
             sem_post(&presenter->freeSem);
         }
 
-        prevFrameBuffer = dstFrameBuffer;            
+        prevFrameBuffer = dstFrameBuffer;   
+        wait(0);         
     }
 
 
@@ -978,7 +982,7 @@ void go2_presenter_post(go2_presenter_t* presenter, go2_surface_t* surface, int 
     sem_wait(&presenter->freeSem);
 
 
-    pthread_mutex_lock(&presenter->queueMutex);
+   // pthread_mutex_lock(&presenter->queueMutex);
 
     if (go2_queue_count_get(presenter->freeFrameBuffers) < 1)
     {
@@ -988,13 +992,13 @@ void go2_presenter_post(go2_presenter_t* presenter, go2_surface_t* surface, int 
 
     go2_frame_buffer_t* dstFrameBuffer = go2_queue_pop(presenter->freeFrameBuffers);
 
-    pthread_mutex_unlock(&presenter->queueMutex);
+   // pthread_mutex_unlock(&presenter->queueMutex);
 
 
     go2_surface_t* dstSurface = go2_frame_buffer_surface_get(dstFrameBuffer);
 
-    rga_info_t dst = { 0 };
-    dst.fd = go2_surface_prime_fd(dstSurface);
+    //rga_info_t dst = { 0 };
+   /* dst.fd = go2_surface_prime_fd(dstSurface);
     dst.mmuFlag = 1;
     dst.rect.xoffset = 0;
     dst.rect.yoffset = 0;
@@ -1004,20 +1008,20 @@ void go2_presenter_post(go2_presenter_t* presenter, go2_surface_t* surface, int 
     dst.rect.hstride = go2_surface_height_get(dstSurface);
     dst.rect.format = go2_rkformat_get(go2_surface_format_get(dstSurface));
     dst.color = presenter->background_color;
-
-    int ret = c_RkRgaColorFill(&dst);
+*/
+    /*int ret = c_RkRgaColorFill(&dst);
     if (ret)
     {
         printf("c_RkRgaColorFill failed.\n");
-    }
+    }*/
 
 
     go2_surface_blit(surface, srcX, srcY, srcWidth, srcHeight, dstSurface, dstX, dstY, dstWidth, dstHeight, rotation);
 
 
-    pthread_mutex_lock(&presenter->queueMutex);
+    //pthread_mutex_lock(&presenter->queueMutex);
     go2_queue_push(presenter->usedFrameBuffers, dstFrameBuffer);
-    pthread_mutex_unlock(&presenter->queueMutex);
+    //pthread_mutex_unlock(&presenter->queueMutex);
 
     sem_post(&presenter->usedSem);
 }
