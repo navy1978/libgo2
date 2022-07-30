@@ -857,7 +857,7 @@ typedef struct go2_presenter
 } go2_presenter_t;
 #endif
 
-#define BUFFER_COUNT (6)
+#define BUFFER_COUNT (15)
 
 static void* go2_presenter_renderloop(void* arg)
 {
