@@ -157,7 +157,8 @@ void go2_audio_submit(go2_audio_t* audio, const short* data, int frames)
 
     
     //while(!processed)
-    for (int i=0;i<4;i++)
+    int i=0;
+    while( !processed && i<8)
     {
         alGetSourceiv(audio->source, AL_BUFFERS_PROCESSED, &processed);
         /*if (!processed)
@@ -174,7 +175,7 @@ void go2_audio_submit(go2_audio_t* audio, const short* data, int frames)
     alSourceQueueBuffers(audio->source, 1, &openALBufferID);
     alGetSourcei(audio->source, AL_SOURCE_STATE, &state);
 
-    if (state != AL_PLAYING && state != AL_PAUSED)
+    if (state != AL_PLAYING && state != AL_PAUSED && processed ==4)
     {
         alSourcePlay(audio->source);
     }
