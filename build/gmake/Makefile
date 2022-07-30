@@ -64,9 +64,9 @@ ifeq ($(config),release)
 endif
 
 OBJECTS := \
+	$(OBJDIR)/queue.o \
 	$(OBJDIR)/audio.o \
 	$(OBJDIR)/hardware.o \
-	$(OBJDIR)/queue.o \
 	$(OBJDIR)/display.o \
 	$(OBJDIR)/input.o \
 
@@ -129,13 +129,13 @@ $(GCH): $(PCH)
 	$(SILENT) $(CC) $(CFLAGS) -o "$@" -c "$<"
 endif
 
+$(OBJDIR)/queue.o: ../../src/queue.c
+	@echo $(notdir $<)
+	$(SILENT) $(CC) $(CFLAGS) -o "$@" -c "$<"
 $(OBJDIR)/audio.o: ../../src/audio.c
 	@echo $(notdir $<)
 	$(SILENT) $(CC) $(CFLAGS) -o "$@" -c "$<"
 $(OBJDIR)/hardware.o: ../../src/hardware.c
-	@echo $(notdir $<)
-	$(SILENT) $(CC) $(CFLAGS) -o "$@" -c "$<"
-$(OBJDIR)/queue.o: ../../src/queue.c
 	@echo $(notdir $<)
 	$(SILENT) $(CC) $(CFLAGS) -o "$@" -c "$<"
 $(OBJDIR)/display.o: ../../src/display.c

@@ -604,15 +604,15 @@ void go2_surface_blit(go2_surface_t* srcSurface, int srcX, int srcY, int srcWidt
             break;
 
         case GO2_ROTATION_DEGREES_90:
-            src.rotation = HAL_TRANSFORM_ROT_90;
+            src.rotation = 0;
             break;
 
         case GO2_ROTATION_DEGREES_180:
-            src.rotation = HAL_TRANSFORM_ROT_180;
+            src.rotation = 0;
             break;
 
         case GO2_ROTATION_DEGREES_270:
-            src.rotation = HAL_TRANSFORM_ROT_270;
+            src.rotation = 0;
             break;
 
         default:
@@ -1025,6 +1025,44 @@ void go2_presenter_post(go2_presenter_t* presenter, go2_surface_t* surface, int 
 
     sem_post(&presenter->usedSem);
 }
+
+
+
+
+void go2_presenter_post2(go2_presenter_t* presenter, go2_surface_t* surface, int srcX, int srcY, int srcWidth, int srcHeight, int dstX, int dstY, int dstWidth, int dstHeight, go2_rotation_t rotation)
+{
+   printf("go2_presenter_post2 .\n");
+    //sem_wait(&presenter->freeSem);
+
+
+   // pthread_mutex_lock(&presenter->queueMutex);
+
+    if (go2_queue_count_get(presenter->freeFrameBuffers) < 1)
+    {
+        printf("no framebuffer available.\n");
+        abort();
+    }
+
+    go2_frame_buffer_t* dstFrameBuffer = go2_queue_pop(presenter->freeFrameBuffers);
+
+   // pthread_mutex_unlock(&presenter->queueMutex);
+
+
+    go2_surface_t* dstSurface = go2_frame_buffer_surface_get(dstFrameBuffer);
+
+    
+
+
+    go2_surface_blit(surface, srcX, srcY, srcWidth, srcHeight, dstSurface, dstX, dstY, dstWidth, dstHeight, rotation);
+
+
+    //pthread_mutex_lock(&presenter->queueMutex);
+    go2_queue_push(presenter->usedFrameBuffers, dstFrameBuffer);
+    //pthread_mutex_unlock(&presenter->queueMutex);
+
+    //sem_post(&presenter->usedSem);
+}
+
 
 
 

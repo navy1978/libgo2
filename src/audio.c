@@ -136,6 +136,9 @@ void go2_audio_destroy(go2_audio_t* audio)
 
 void go2_audio_submit(go2_audio_t* audio, const short* data, int frames)
 {
+      
+      
+      
       if (!audio || !audio->isAudioInitialized) {
         printf("audio not initialized.\n");
         return;
@@ -175,6 +178,54 @@ void go2_audio_submit(go2_audio_t* audio, const short* data, int frames)
         alSourcePlay(audio->source);
     }
 }
+
+
+
+void go2_audio_submit2(go2_audio_t* audio, const short* data, int frames)
+{
+      
+      printf("go2_audio_submit2\n");
+      
+      if (!audio || !audio->isAudioInitialized) {
+        printf("audio not initialized.\n");
+        return;
+    }
+
+
+    /*if (!alcMakeContextCurrent(audio->context))
+    {
+        printf("alcMakeContextCurrent failed.\n");
+        return;
+    }*/
+
+    ALint processed = 0;
+    ALuint openALBufferID;
+    ALint state;
+
+
+    while(!processed)
+    {
+        alGetSourceiv(audio->source, AL_BUFFERS_PROCESSED, &processed);
+        /*if (!processed)
+        {
+            sleep(0);
+        }*/
+    }
+
+    
+    alSourceUnqueueBuffers(audio->source, 1, &openALBufferID);
+
+    int dataByteLength = frames * sizeof(short) * SOUND_CHANNEL_COUNT;
+    alBufferData(openALBufferID, AL_FORMAT_STEREO16, data, dataByteLength, audio->frequency);
+    alSourceQueueBuffers(audio->source, 1, &openALBufferID);
+    alGetSourcei(audio->source, AL_SOURCE_STATE, &state);
+
+    if (state != AL_PLAYING && state != AL_PAUSED)
+    {
+        alSourcePlay(audio->source);
+    }
+}
+
 
 
 
