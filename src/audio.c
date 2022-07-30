@@ -155,8 +155,9 @@ void go2_audio_submit(go2_audio_t* audio, const short* data, int frames)
     ALuint openALBufferID;
     ALint state;
 
-
-    while(!processed)
+    
+    //while(!processed)
+    for (int i=0;i<BUFFER_COUNT;i++)
     {
         alGetSourceiv(audio->source, AL_BUFFERS_PROCESSED, &processed);
         /*if (!processed)
