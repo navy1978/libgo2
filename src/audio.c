@@ -216,18 +216,25 @@ void go2_audio_submit2(go2_audio_t* audio, const short* data, int frames)
     ALint processed = 0;
     ALuint openALBufferID;
     ALint state;
-    pid_t pid = fork();
- if (pid == 0) {
-    while( !processed)
+double time_spent = 0.0;
+clock_t begin = clock();
+    
+    //while(!processed)
+    bool tooLong = false;
+    while( !processed && !tooLong)
     {
         alGetSourceiv(audio->source, AL_BUFFERS_PROCESSED, &processed);
-        /*if (!processed)
-        {
-            sleep(0);
-        }*/
-       sleep(0);
+        clock_t end = clock();
+        time_spent += (double)(end - begin) / CLOCKS_PER_SEC * 1000;
+        if (time_spent>0.1){
+            tooLong= true;
+            printf(">>>>>>>>>>>> TOO LONG %f.\n", time_spent);
+        }
     }
 
+    
+
+ 
     
 
 
@@ -240,12 +247,12 @@ void go2_audio_submit2(go2_audio_t* audio, const short* data, int frames)
 
     if (state != AL_PLAYING && state != AL_PAUSED )
     {
-
+           printf("OK elapsed %f.\n", time_spent);
         alSourcePlay(audio->source);
+    }else {
+        printf("->NOT OK elapsed %f.\n", time_spent);
     }
- }
 }
-
 
 
 
