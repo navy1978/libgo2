@@ -138,7 +138,7 @@ void go2_audio_submit(go2_audio_t* audio, const short* data, int frames)
 {
       
       
-      
+      printf("normal.\n");
       if (!audio || !audio->isAudioInitialized) {
         printf("audio not initialized.\n");
         return;
@@ -200,7 +200,7 @@ clock_t end = clock();
 void go2_audio_submit2(go2_audio_t* audio, const short* data, int frames)
 {
       
-      
+      printf("2.\n");
       
       if (!audio || !audio->isAudioInitialized) {
         printf("audio not initialized.\n");
@@ -244,6 +244,7 @@ clock_t begin = clock();
     alSourceUnqueueBuffers(audio->source, 1, &openALBufferID);
 
     int dataByteLength = frames * sizeof(short) * SOUND_CHANNEL_COUNT;
+    printf(">>>>>>>>>>>> dataByteLength %d.\n", dataByteLength);
     alBufferData(openALBufferID, AL_FORMAT_STEREO16, data, dataByteLength, audio->frequency);
     alSourceQueueBuffers(audio->source, 1, &openALBufferID);
     alGetSourcei(audio->source, AL_SOURCE_STATE, &state);
@@ -262,7 +263,7 @@ clock_t begin = clock();
 void go2_audio_submit3(go2_audio_t* audio, const short* data, int frames)
 {
       
-      
+      printf("3.\n");
       
       if (!audio || !audio->isAudioInitialized) {
         printf("audio not initialized.\n");
@@ -290,7 +291,7 @@ clock_t begin = clock();
         sleep(0);
         clock_t end = clock();
         time_spent += (double)(end - begin) / CLOCKS_PER_SEC * 1000;
-        if (time_spent>0.05){
+        if (time_spent>0.02){
             tooLong= true;
             printf(">>>>>>>>>>>> TOO LONG %f.\n", time_spent);
         }
@@ -325,7 +326,7 @@ void go2_audio_submit4(go2_audio_t* audio, const short* data, int frames)
 {
       
       
-      
+      printf("4.\n");
       if (!audio || !audio->isAudioInitialized) {
         printf("audio not initialized.\n");
         return;
@@ -352,7 +353,7 @@ clock_t begin = clock();
         sleep(0);
         clock_t end = clock();
         time_spent += (double)(end - begin) / CLOCKS_PER_SEC * 1000;
-        if (time_spent>0.05){
+        if (time_spent>0.02){
             tooLong= true;
             printf(">>>>>>>>>>>> TOO LONG %f.\n", time_spent);
         }
