@@ -154,7 +154,8 @@ void go2_audio_submit(go2_audio_t* audio, const short* data, int frames)
     ALint processed = 0;
     ALuint openALBufferID;
     ALint state;
-
+double time_spent = 0.0;
+clock_t begin = clock();
     
     //while(!processed)
     int i=0;
@@ -165,9 +166,17 @@ void go2_audio_submit(go2_audio_t* audio, const short* data, int frames)
         {
             sleep(0);
         }*/
+        i++;
     }
 
     
+clock_t end = clock();
+ 
+    // calcola il tempo trascorso trovando la differenza (end - begin) e
+    // dividendo la differenza per CLOCKS_PER_SEC per convertire in secondi
+    time_spent += (double)(end - begin) / CLOCKS_PER_SEC * 1000;
+
+
     alSourceUnqueueBuffers(audio->source, 1, &openALBufferID);
 
     int dataByteLength = frames * sizeof(short) * SOUND_CHANNEL_COUNT;
@@ -177,7 +186,10 @@ void go2_audio_submit(go2_audio_t* audio, const short* data, int frames)
 
     if (state != AL_PLAYING && state != AL_PAUSED && processed ==4)
     {
+           printf("OK elapsed %f.\n", time_spent);
         alSourcePlay(audio->source);
+    }else {
+        printf("->NOT OK elapsed %f.\n", time_spent);
     }
 }
 
