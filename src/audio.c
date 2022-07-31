@@ -166,6 +166,7 @@ clock_t begin = clock();
         {
             sleep(0);
         }*/
+        sleep(0);
         i++;
     }
 
@@ -226,7 +227,7 @@ clock_t begin = clock();
         alGetSourceiv(audio->source, AL_BUFFERS_PROCESSED, &processed);
         clock_t end = clock();
         time_spent += (double)(end - begin) / CLOCKS_PER_SEC * 1000;
-        if (time_spent>0.1){
+        if (time_spent>0.05){
             tooLong= true;
             printf(">>>>>>>>>>>> TOO LONG %f.\n", time_spent);
         }
@@ -236,7 +237,134 @@ clock_t begin = clock();
 
  
     
+    if(tooLong){
+        return;
+    }
 
+    alSourceUnqueueBuffers(audio->source, 1, &openALBufferID);
+
+    int dataByteLength = frames * sizeof(short) * SOUND_CHANNEL_COUNT;
+    alBufferData(openALBufferID, AL_FORMAT_STEREO16, data, dataByteLength, audio->frequency);
+    alSourceQueueBuffers(audio->source, 1, &openALBufferID);
+    alGetSourcei(audio->source, AL_SOURCE_STATE, &state);
+
+    if (state != AL_PLAYING && state != AL_PAUSED )
+    {
+           printf("OK elapsed %f.\n", time_spent);
+        alSourcePlay(audio->source);
+    }else {
+        printf("->NOT OK elapsed %f.\n", time_spent);
+    }
+}
+
+
+
+void go2_audio_submit3(go2_audio_t* audio, const short* data, int frames)
+{
+      
+      
+      
+      if (!audio || !audio->isAudioInitialized) {
+        printf("audio not initialized.\n");
+        return;
+    }
+
+
+    /*if (!alcMakeContextCurrent(audio->context))
+    {
+        printf("alcMakeContextCurrent failed.\n");
+        return;
+    }*/
+
+    ALint processed = 0;
+    ALuint openALBufferID;
+    ALint state;
+double time_spent = 0.0;
+clock_t begin = clock();
+    
+    //while(!processed)
+    bool tooLong = false;
+    while( !processed && !tooLong)
+    {
+        alGetSourceiv(audio->source, AL_BUFFERS_PROCESSED, &processed);
+        sleep(0);
+        clock_t end = clock();
+        time_spent += (double)(end - begin) / CLOCKS_PER_SEC * 1000;
+        if (time_spent>0.05){
+            tooLong= true;
+            printf(">>>>>>>>>>>> TOO LONG %f.\n", time_spent);
+        }
+    }
+
+    
+
+ 
+    /*
+    if(tooLong){
+        return;
+    }*/
+
+    alSourceUnqueueBuffers(audio->source, 1, &openALBufferID);
+
+    int dataByteLength = frames * sizeof(short) * SOUND_CHANNEL_COUNT;
+    alBufferData(openALBufferID, AL_FORMAT_STEREO16, data, dataByteLength, audio->frequency);
+    alSourceQueueBuffers(audio->source, 1, &openALBufferID);
+    alGetSourcei(audio->source, AL_SOURCE_STATE, &state);
+
+    if (state != AL_PLAYING && state != AL_PAUSED )
+    {
+           printf("OK elapsed %f.\n", time_spent);
+        alSourcePlay(audio->source);
+    }else {
+        printf("->NOT OK elapsed %f.\n", time_spent);
+    }
+}
+
+
+void go2_audio_submit4(go2_audio_t* audio, const short* data, int frames)
+{
+      
+      
+      
+      if (!audio || !audio->isAudioInitialized) {
+        printf("audio not initialized.\n");
+        return;
+    }
+
+
+    /*if (!alcMakeContextCurrent(audio->context))
+    {
+        printf("alcMakeContextCurrent failed.\n");
+        return;
+    }*/
+
+    ALint processed = 0;
+    ALuint openALBufferID;
+    ALint state;
+double time_spent = 0.0;
+clock_t begin = clock();
+    
+    //while(!processed)
+    bool tooLong = false;
+    while( !processed && !tooLong)
+    {
+        alGetSourceiv(audio->source, AL_BUFFERS_PROCESSED, &processed);
+        sleep(0);
+        clock_t end = clock();
+        time_spent += (double)(end - begin) / CLOCKS_PER_SEC * 1000;
+        if (time_spent>0.05){
+            tooLong= true;
+            printf(">>>>>>>>>>>> TOO LONG %f.\n", time_spent);
+        }
+    }
+
+    
+
+ 
+    
+    if(tooLong){
+        return;
+    }
 
     alSourceUnqueueBuffers(audio->source, 1, &openALBufferID);
 

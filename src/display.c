@@ -857,7 +857,7 @@ typedef struct go2_presenter
 } go2_presenter_t;
 #endif
 
-#define BUFFER_COUNT (256)
+#define BUFFER_COUNT (3)
 
 static void* go2_presenter_renderloop(void* arg)
 {
@@ -942,6 +942,50 @@ go2_presenter_t* go2_presenter_create(go2_display_t* display, uint32_t format, u
 
     return result;
 }
+
+
+go2_presenter_t* go2_presenter_create2(go2_display_t* display, uint32_t format, uint32_t background_color, int bufferSize)
+{
+    go2_presenter_t* result = malloc(sizeof(*result));
+    if (!result)
+    {
+        printf("malloc failed.\n");
+        return NULL;
+    }
+
+    memset(result, 0, sizeof(*result));
+
+
+    result->display = display;
+    result->format = format;
+    result->background_color = background_color;
+    result->freeFrameBuffers = go2_queue_create(bufferSize);
+    result->usedFrameBuffers = go2_queue_create(bufferSize);
+
+    int width = go2_display_width_get(display);
+    int height = go2_display_height_get(display);
+
+    for (int i = 0; i < bufferSize; ++i)
+    {
+        go2_surface_t* surface = go2_surface_create(display, width, height, format);
+        go2_frame_buffer_t* frameBuffer = go2_frame_buffer_create(surface);
+
+        go2_queue_push(result->freeFrameBuffers, frameBuffer);
+    }
+
+ 
+    sem_init(&result->usedSem, 0, 0);
+    sem_init(&result->freeSem, 0, bufferSize);
+
+    pthread_mutex_init(&result->queueMutex, NULL);
+
+    pthread_create(&result->renderThread, NULL, go2_presenter_renderloop, result);
+
+    return result;
+}
+
+
+
 
 void go2_presenter_destroy(go2_presenter_t* presenter)
 {
