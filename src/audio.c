@@ -159,15 +159,76 @@ clock_t begin = clock();
     
     //while(!processed)
     int i=0;
-    while( !processed && i<8)
+    while( !processed)
     {
         alGetSourceiv(audio->source, AL_BUFFERS_PROCESSED, &processed);
-        /*if (!processed)
+        if (!processed)
         {
             sleep(0);
-        }*/
-        sleep(0);
+        }
+        
+        
+    }
+
+    
+clock_t end = clock();
+ 
+    // calcola il tempo trascorso trovando la differenza (end - begin) e
+    // dividendo la differenza per CLOCKS_PER_SEC per convertire in secondi
+    time_spent += (double)(end - begin) / CLOCKS_PER_SEC * 1000;
+
+
+    alSourceUnqueueBuffers(audio->source, 1, &openALBufferID);
+
+    int dataByteLength = frames * sizeof(short) * SOUND_CHANNEL_COUNT;
+    alBufferData(openALBufferID, AL_FORMAT_STEREO16, data, dataByteLength, audio->frequency);
+    alSourceQueueBuffers(audio->source, 1, &openALBufferID);
+    alGetSourcei(audio->source, AL_SOURCE_STATE, &state);
+
+    if (state != AL_PLAYING && state != AL_PAUSED )
+    {
+           printf("OK elapsed %f.\n", time_spent);
+        alSourcePlay(audio->source);
+    }else {
+        printf("->NOT OK elapsed %f.\n", time_spent);
+    }
+}
+
+
+void go2_audio_submit2(go2_audio_t* audio, const short* data, int frames)
+{
+      
+      
+      printf("normal.\n");
+      if (!audio || !audio->isAudioInitialized) {
+        printf("audio not initialized.\n");
+        return;
+    }
+
+
+    /*if (!alcMakeContextCurrent(audio->context))
+    {
+        printf("alcMakeContextCurrent failed.\n");
+        return;
+    }*/
+
+    ALint processed = 0;
+    ALuint openALBufferID;
+    ALint state;
+double time_spent = 0.0;
+clock_t begin = clock();
+    
+    //while(!processed)
+    int i=0;
+    while( !processed && i<10)
+    {
+        alGetSourceiv(audio->source, AL_BUFFERS_PROCESSED, &processed);
+        if (!processed)
+        {
+            sleep(0);
+        }
         i++;
+        
     }
 
     
@@ -196,75 +257,11 @@ clock_t end = clock();
 
 
 
-
-void go2_audio_submit2(go2_audio_t* audio, const short* data, int frames)
-{
-      
-      printf("2.\n");
-      
-      if (!audio || !audio->isAudioInitialized) {
-        printf("audio not initialized.\n");
-        return;
-    }
-
-
-    /*if (!alcMakeContextCurrent(audio->context))
-    {
-        printf("alcMakeContextCurrent failed.\n");
-        return;
-    }*/
-
-    ALint processed = 0;
-    ALuint openALBufferID;
-    ALint state;
-double time_spent = 0.0;
-clock_t begin = clock();
-    
-    //while(!processed)
-    bool tooLong = false;
-    while( !processed && !tooLong)
-    {
-        alGetSourceiv(audio->source, AL_BUFFERS_PROCESSED, &processed);
-        clock_t end = clock();
-        time_spent += (double)(end - begin) / CLOCKS_PER_SEC * 1000;
-        if (time_spent>0.05){
-            tooLong= true;
-            printf(">>>>>>>>>>>> TOO LONG %f.\n", time_spent);
-        }
-    }
-
-    
-
- 
-    
-    if(tooLong){
-        return;
-    }
-
-    alSourceUnqueueBuffers(audio->source, 1, &openALBufferID);
-
-    int dataByteLength = frames * sizeof(short) * SOUND_CHANNEL_COUNT;
-    printf(">>>>>>>>>>>> dataByteLength %d.\n", dataByteLength);
-    alBufferData(openALBufferID, AL_FORMAT_STEREO16, data, dataByteLength, audio->frequency);
-    alSourceQueueBuffers(audio->source, 1, &openALBufferID);
-    alGetSourcei(audio->source, AL_SOURCE_STATE, &state);
-
-    if (state != AL_PLAYING && state != AL_PAUSED )
-    {
-           printf("OK elapsed %f.\n", time_spent);
-        alSourcePlay(audio->source);
-    }else {
-        printf("->NOT OK elapsed %f.\n", time_spent);
-    }
-}
-
-
-
 void go2_audio_submit3(go2_audio_t* audio, const short* data, int frames)
 {
       
-      printf("3.\n");
       
+      printf("normal.\n");
       if (!audio || !audio->isAudioInitialized) {
         printf("audio not initialized.\n");
         return;
@@ -284,26 +281,25 @@ double time_spent = 0.0;
 clock_t begin = clock();
     
     //while(!processed)
-    bool tooLong = false;
-    while( !processed && !tooLong)
+    int i=0;
+    while( !processed)
     {
         alGetSourceiv(audio->source, AL_BUFFERS_PROCESSED, &processed);
-        sleep(0);
-        clock_t end = clock();
-        time_spent += (double)(end - begin) / CLOCKS_PER_SEC * 1000;
-        if (time_spent>0.02){
-            tooLong= true;
-            printf(">>>>>>>>>>>> TOO LONG %f.\n", time_spent);
+        if (!processed)
+        {
+            sleep(0);
         }
+        
+        
     }
 
     
-
+clock_t end = clock();
  
-    /*
-    if(tooLong){
-        return;
-    }*/
+    // calcola il tempo trascorso trovando la differenza (end - begin) e
+    // dividendo la differenza per CLOCKS_PER_SEC per convertire in secondi
+    time_spent += (double)(end - begin) / CLOCKS_PER_SEC * 1000;
+
 
     alSourceUnqueueBuffers(audio->source, 1, &openALBufferID);
 
@@ -312,7 +308,7 @@ clock_t begin = clock();
     alSourceQueueBuffers(audio->source, 1, &openALBufferID);
     alGetSourcei(audio->source, AL_SOURCE_STATE, &state);
 
-    if (state != AL_PLAYING && state != AL_PAUSED )
+    if (state != AL_PLAYING && state != AL_PAUSED && processed==4)
     {
            printf("OK elapsed %f.\n", time_spent);
         alSourcePlay(audio->source);
@@ -320,13 +316,14 @@ clock_t begin = clock();
         printf("->NOT OK elapsed %f.\n", time_spent);
     }
 }
+
 
 
 void go2_audio_submit4(go2_audio_t* audio, const short* data, int frames)
 {
       
       
-      printf("4.\n");
+      printf("normal.\n");
       if (!audio || !audio->isAudioInitialized) {
         printf("audio not initialized.\n");
         return;
@@ -342,30 +339,31 @@ void go2_audio_submit4(go2_audio_t* audio, const short* data, int frames)
     ALint processed = 0;
     ALuint openALBufferID;
     ALint state;
-double time_spent = 0.0;
-clock_t begin = clock();
+    double time_spent = 0.0;
+    clock_t begin = clock();
     
     //while(!processed)
-    bool tooLong = false;
-    while( !processed && !tooLong)
+    int i=0;
+    while( !processed)
     {
         alGetSourceiv(audio->source, AL_BUFFERS_PROCESSED, &processed);
-        sleep(0);
-        clock_t end = clock();
-        time_spent += (double)(end - begin) / CLOCKS_PER_SEC * 1000;
-        if (time_spent>0.02){
-            tooLong= true;
-            printf(">>>>>>>>>>>> TOO LONG %f.\n", time_spent);
+        if (!processed)
+        {
+            sleep(0);
         }
+        
+        
     }
 
+      if (fork() == 0){
     
-
+    
+clock_t end = clock();
  
-    
-    if(tooLong){
-        return;
-    }
+    // calcola il tempo trascorso trovando la differenza (end - begin) e
+    // dividendo la differenza per CLOCKS_PER_SEC per convertire in secondi
+    time_spent += (double)(end - begin) / CLOCKS_PER_SEC * 1000;
+
 
     alSourceUnqueueBuffers(audio->source, 1, &openALBufferID);
 
@@ -381,6 +379,72 @@ clock_t begin = clock();
     }else {
         printf("->NOT OK elapsed %f.\n", time_spent);
     }
+      }
+}
+
+
+void go2_audio_submit5(go2_audio_t* audio, const short* data, int frames)
+{
+      
+      
+      printf("normal.\n");
+      if (!audio || !audio->isAudioInitialized) {
+        printf("audio not initialized.\n");
+        return;
+    }
+
+
+    /*if (!alcMakeContextCurrent(audio->context))
+    {
+        printf("alcMakeContextCurrent failed.\n");
+        return;
+    }*/
+
+    ALint processed = 0;
+    ALuint openALBufferID;
+    ALint state;
+    double time_spent = 0.0;
+    clock_t begin = clock();
+    
+    //while(!processed)
+    int i=0;
+    if (fork() == 0){
+    while( !processed)
+    {
+        alGetSourceiv(audio->source, AL_BUFFERS_PROCESSED, &processed);
+        if (!processed)
+        {
+            sleep(0);
+        }
+        
+        
+    }
+
+      
+    
+    
+clock_t end = clock();
+ 
+    // calcola il tempo trascorso trovando la differenza (end - begin) e
+    // dividendo la differenza per CLOCKS_PER_SEC per convertire in secondi
+    time_spent += (double)(end - begin) / CLOCKS_PER_SEC * 1000;
+
+
+    alSourceUnqueueBuffers(audio->source, 1, &openALBufferID);
+
+    int dataByteLength = frames * sizeof(short) * SOUND_CHANNEL_COUNT;
+    alBufferData(openALBufferID, AL_FORMAT_STEREO16, data, dataByteLength, audio->frequency);
+    alSourceQueueBuffers(audio->source, 1, &openALBufferID);
+    alGetSourcei(audio->source, AL_SOURCE_STATE, &state);
+
+    if (state != AL_PLAYING && state != AL_PAUSED )
+    {
+           printf("OK elapsed %f.\n", time_spent);
+        alSourcePlay(audio->source);
+    }else {
+        printf("->NOT OK elapsed %f.\n", time_spent);
+    }
+      }
 }
 
 
