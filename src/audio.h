@@ -41,11 +41,9 @@ extern "C" {
 
 go2_audio_t* go2_audio_create(int frequency);
 void go2_audio_destroy(go2_audio_t* audio);
+void go2_audio_submit_max_retry(go2_audio_t* audio, const short* data, int frames, int max_retry);
 void go2_audio_submit(go2_audio_t* audio, const short* data, int frames);
 void go2_audio_submit2(go2_audio_t* audio, const short* data, int frames);
-void go2_audio_submit3(go2_audio_t* audio, const short* data, int frames);
-void go2_audio_submit4(go2_audio_t* audio, const short* data, int frames);
-void go2_audio_submit5(go2_audio_t* audio, const short* data, int frames);
 uint32_t go2_audio_volume_get(go2_audio_t* audio);
 void go2_audio_volume_set(go2_audio_t* audio, uint32_t value);
 go2_audio_path_t go2_audio_path_get(go2_audio_t* audio);

@@ -944,7 +944,7 @@ go2_presenter_t* go2_presenter_create(go2_display_t* display, uint32_t format, u
 }
 
 
-go2_presenter_t* go2_presenter_create2(go2_display_t* display, uint32_t format, uint32_t background_color, int bufferSize)
+go2_presenter_t* go2_presenter_create_bs(go2_display_t* display, uint32_t format, uint32_t background_color, int bufferSize)
 {
     go2_presenter_t* result = malloc(sizeof(*result));
     if (!result)
