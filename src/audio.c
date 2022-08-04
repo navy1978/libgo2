@@ -203,7 +203,7 @@ void go2_audio_submit2(go2_audio_t* audio, const short* data, int frames)
 
     while (!processed) {
         alGetSourceiv(audio->source, AL_BUFFERS_PROCESSED, &processed);
-        usleep(10000); // 10 milliseconds
+        sched_yield();
     }
 
 
